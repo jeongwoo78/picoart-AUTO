@@ -28,15 +28,15 @@ module.exports = async (req, res) => {
     console.log('Style:', style);
     console.log('Image size:', image.length);
 
-    // Using Stability AI SDXL img2img - verified and reliable
-    // This model takes an image and applies style through prompts
+    // Using ControlNet Canny - preserves exact structure of input image
+    // This extracts edges from input and forces output to follow same structure
     let modelVersion = 'latest';
     
-    console.log('🎨 Using Stability AI SDXL img2img');
+    console.log('🎨 Using ControlNet Canny for structure preservation');
     
     try {
-      console.log('Fetching model version...');
-      const modelResponse = await fetch('https://api.replicate.com/v1/models/stability-ai/sdxl', {
+      console.log('Fetching ControlNet model...');
+      const modelResponse = await fetch('https://api.replicate.com/v1/models/jagilley/controlnet-canny', {
         headers: {
           'Authorization': `Token ${apiToken}`,
           'Content-Type': 'application/json'
@@ -166,7 +166,7 @@ module.exports = async (req, res) => {
     const stylePrompt = selectedArtwork.prompt;
     const matchedArtworkName = selectedArtwork.nameKr;
 
-    console.log('Creating prediction with SDXL img2img...');
+    console.log('Creating prediction with ControlNet Canny...');
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
@@ -176,12 +176,12 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         version: modelVersion,
         input: {
-          image: image,                    // User's photo as base
-          prompt: `apply ${stylePrompt} artistic brushstrokes and color palette to this exact image, preserve all subjects and composition exactly as is`,
-          negative_prompt: 'different people, different faces, different subjects, new composition, different scene, flowers, sunflowers, blurry, low quality',
+          image: image,                              // User's photo - structure will be preserved
+          prompt: stylePrompt,                       // Van Gogh style description
+          negative_prompt: 'blurry, low quality, distorted, ugly, deformed',
           num_inference_steps: 30,
-          guidance_scale: 5.0,             // Lower guidance = less prompt influence
-          strength: 0.15,                  // Very low! Only 15% transformation
+          guidance_scale: 7.5,
+          controlnet_conditioning_scale: 1.0,        // Maximum structure preservation!
           seed: Math.floor(Math.random() * 1000000)
         }
       })

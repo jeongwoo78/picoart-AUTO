@@ -177,11 +177,11 @@ module.exports = async (req, res) => {
         version: modelVersion,
         input: {
           image: image,                    // User's photo as base
-          prompt: `portrait in ${stylePrompt}, maintain subject identity, preserve facial features and composition, artistic style only`,
-          negative_prompt: 'blurry, low quality, distorted, ugly, deformed, watermark, text, flowers, sunflowers, completely different subject',
-          num_inference_steps: 40,
-          guidance_scale: 7.5,
-          strength: 0.35,                  // Lower! Only 35% transformation to keep subject
+          prompt: `apply ${stylePrompt} artistic brushstrokes and color palette to this exact image, preserve all subjects and composition exactly as is`,
+          negative_prompt: 'different people, different faces, different subjects, new composition, different scene, flowers, sunflowers, blurry, low quality',
+          num_inference_steps: 30,
+          guidance_scale: 5.0,             // Lower guidance = less prompt influence
+          strength: 0.15,                  // Very low! Only 15% transformation
           seed: Math.floor(Math.random() * 1000000)
         }
       })

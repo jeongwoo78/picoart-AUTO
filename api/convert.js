@@ -28,15 +28,15 @@ module.exports = async (req, res) => {
     console.log('Style:', style);
     console.log('Image size:', image.length);
 
-    // Using lucataco/sdxl-style-transfer - verified working model
-    // This properly applies artwork style to user photos
+    // Using Stability AI SDXL img2img - verified and reliable
+    // This model takes an image and applies style through prompts
     let modelVersion = 'latest';
     
-    console.log('🎨 Using SDXL Style Transfer model');
+    console.log('🎨 Using Stability AI SDXL img2img');
     
     try {
       console.log('Fetching model version...');
-      const modelResponse = await fetch('https://api.replicate.com/v1/models/lucataco/sdxl-style-transfer', {
+      const modelResponse = await fetch('https://api.replicate.com/v1/models/stability-ai/sdxl', {
         headers: {
           'Authorization': `Token ${apiToken}`,
           'Content-Type': 'application/json'
@@ -166,7 +166,7 @@ module.exports = async (req, res) => {
     const stylePrompt = selectedArtwork.prompt;
     const matchedArtworkName = selectedArtwork.nameKr;
 
-    console.log('Creating prediction with SDXL Style Transfer...');
+    console.log('Creating prediction with SDXL img2img...');
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
@@ -176,13 +176,13 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         version: modelVersion,
         input: {
-          input_image: image,           // User's photo (content)
-          style_image: styleImage,       // Van Gogh artwork (style)
-          prompt: stylePrompt,           // Style description
-          negative_prompt: 'blurry, low quality, distorted, ugly, deformed',
-          num_inference_steps: 50,
+          image: image,                    // User's photo as base
+          prompt: `${stylePrompt}, masterpiece, best quality, highly detailed`,
+          negative_prompt: 'blurry, low quality, distorted, ugly, deformed, watermark, text',
+          num_inference_steps: 40,
           guidance_scale: 7.5,
-          strength: 0.8                  // How much style to apply (0-1)
+          strength: 0.65,                  // How much to transform (65%)
+          seed: Math.floor(Math.random() * 1000000)
         }
       })
     });

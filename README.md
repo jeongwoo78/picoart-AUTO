@@ -1,177 +1,118 @@
-# 🚀 PicoArt v5 - 자동 설정 완료!
+# 🔧 PicoArt v5 - Style Transfer 문제 해결!
 
-## ✅ vercel.json 파일 1개만 수정하면 끝!
+## ✅ 수정 사항
 
-**코드 파일(convert.js)은 건드릴 필요 없어요!**
+**문제:** 반고흐 명화 원본이 그대로 나옴 (스타일 변환 안 됨)
+
+**원인:** 잘못된 Replicate 모델 사용
+
+**해결:** `lucataco/sdxl-style-transfer` 모델로 변경
 
 ---
 
-## 📝 배포 2단계
+## 🚀 업데이트 방법
 
-### 1️⃣ GitHub 업로드
+### 1️⃣ GitHub convert.js 파일 교체
 
 ```
-1. https://github.com/new 접속
-2. Repository name: picoart-final-deploy
-3. ✅ Public 선택 (필수!)
-4. Create repository
-5. "uploading an existing file" 클릭
-6. 압축 푼 모든 파일 업로드
-   ⚠️ artworks 폴더 반드시 포함!
+1. https://github.com/jeongwoo78/picoart-AUTO 접속
+2. api 폴더 클릭
+3. convert.js 파일 클릭
+4. 연필 아이콘 (Edit) 클릭
+5. 전체 내용 삭제
+6. 새 convert.js 내용 복사 붙여넣기
 7. Commit changes
 ```
 
-### 2️⃣ vercel.json 수정 (딱 2줄!)
-
-**GitHub 저장소에서:**
-```
-1. vercel.json 파일 클릭
-2. 연필 아이콘 (Edit) 클릭
-3. 3-4번째 줄 수정:
-```
-
-**수정 전:**
-```json
-{
-  "version": 2,
-  "env": {
-    "GITHUB_USER": "YOUR-USERNAME",
-    "GITHUB_REPO": "YOUR-REPO"
-  }
-}
-```
-
-**수정 후:**
-```json
-{
-  "version": 2,
-  "env": {
-    "GITHUB_USER": "jeongwoo78",
-    "GITHUB_REPO": "picoart-final-deploy"
-  }
-}
-```
-
-**4. Commit changes 클릭**
-
-### 3️⃣ Vercel 배포
+### 2️⃣ Vercel 자동 재배포
 
 ```
-1. https://vercel.com/new
-2. Import Git Repository
-3. picoart-final-deploy 선택
-4. Deploy 클릭
-5. 완료! ✨
+1. GitHub에 커밋하면 Vercel이 자동으로 감지
+2. 1-2분 대기
+3. https://vercel.com/dashboard에서 초록 체크 확인
 ```
 
----
+### 3️⃣ 테스트
 
-## 🎯 왜 이 방법이 좋나요?
-
-### ✅ 장점
-- **파일 1개만 수정** (vercel.json)
-- **코드(convert.js) 건드리지 않음**
-- **환경 변수 자동 적용**
-- **재배포 시 설정 유지**
-
-### 🔧 작동 원리
-```
-vercel.json → 환경 변수 설정
-    ↓
-convert.js → 환경 변수 자동 읽기
-    ↓
-GitHub URL 자동 생성
-```
-
----
-
-## ✅ 테스트
-
-### 1. 이미지 URL 확인
-브라우저에서:
-```
-https://raw.githubusercontent.com/jeongwoo78/picoart-final-deploy/main/artworks/vangogh/01_starry_night.jpg
-```
-→ 이미지가 보이면 성공!
-
-### 2. 사이트 테스트
 ```
 1. 시크릿 창에서 사이트 접속
 2. F12 → Console
-3. Replicate API 토큰 입력
-4. Van Gogh 선택
-5. 사진 업로드
-6. 변환 시작
+3. Van Gogh 선택
+4. 사진 업로드
+5. 변환 시작
 ```
 
-### 3. Console 확인
+**이제 진짜 스타일 변환이 작동해요!** ✨
+
+---
+
+## 🎨 변경된 모델
+
+### ❌ 이전 (작동 안 함)
 ```
-🌐 GitHub User: jeongwoo78
-📦 GitHub Repo: picoart-final-deploy
-🖼️ Artwork URL: https://raw.githubusercontent.com/.../artworks/vangogh
-🎨 ===== AI Auto-Matching =====
-✅ Prediction created!
+fofr/style-transfer
+→ 프롬프트만 사용
+→ 이미지 2개를 제대로 처리 못함
+```
+
+### ✅ 현재 (작동함!)
+```
+lucataco/sdxl-style-transfer
+→ SDXL 기반
+→ input_image + style_image 제대로 처리
+→ 아기 사진 + 반고흐 스타일 = 반고흐풍 아기 사진!
 ```
 
 ---
 
-## 🔍 문제 해결
+## 📋 새 모델 파라미터
 
-### 422 에러?
-1. **GitHub 저장소가 Public인지 확인**
-2. **vercel.json의 GitHub 정보가 올바른지 확인**
-3. **artworks 폴더가 업로드되었는지 확인**
-
-### 환경 변수가 적용 안 됨?
-- Vercel에서 재배포 (Project → Deployments → 최신 배포의 점 3개 → Redeploy)
-
----
-
-## 📋 수정해야 할 파일
-
-**✅ vercel.json (딱 이것만!)**
-```json
-"GITHUB_USER": "본인아이디",
-"GITHUB_REPO": "본인저장소"
-```
-
-**❌ convert.js (수정 불필요!)**
 ```javascript
-// 이미 자동으로 환경 변수 읽음
-const GITHUB_USER = process.env.GITHUB_USER;
+{
+  input_image: "아기 사진",        // 변환할 원본
+  style_image: "반고흐 명화",      // 적용할 스타일
+  prompt: "Van Gogh style...",    // 스타일 설명
+  strength: 0.8                    // 스타일 강도 (80%)
+}
 ```
 
 ---
 
-## 🎊 요약
+## 🔍 결과 예상
 
-### 수정할 것
-- **vercel.json** → 2줄 (GitHub 아이디, 저장소명)
+### 업로드:
+- 아기 사진 (사용자)
+- Van Gogh 선택 (AI가 "침실" 매칭)
 
-### 수정 안 해도 되는 것
-- **convert.js** → 자동 처리됨
-- **index.html** → 완벽함
-- **status.js** → 완벽함
-
----
-
-## 💡 팁: Vercel 대시보드에서 설정하기
-
-vercel.json 수정 대신 Vercel 대시보드에서도 가능:
-
-```
-1. Vercel 프로젝트 → Settings
-2. Environment Variables
-3. Add New:
-   - Key: GITHUB_USER, Value: jeongwoo78
-   - Key: GITHUB_REPO, Value: picoart-final-deploy
-4. Save
-5. Redeploy
-```
-
-이 방법은 vercel.json 수정도 필요 없어요!
+### 출력:
+- **반고흐 붓터치로 그려진 아기 사진**
+- 침실 스타일의 색감과 질감
+- 원본 구도 유지
 
 ---
 
-**수정: vercel.json 딱 2줄!**
-**끝! 🎉**
+## ⚡ 빠른 업데이트
+
+**방법 1: 파일 직접 교체 (권장)**
+- GitHub에서 api/convert.js 삭제
+- 새 convert.js 업로드
+
+**방법 2: 전체 다시 배포**
+- 새 압축 파일 다운로드
+- 전체 재업로드
+
+---
+
+## 💡 확인 사항
+
+Console에서 이렇게 나와야 성공:
+```
+🎨 Using SDXL Style Transfer model
+✅ Using version: ...
+Creating prediction with SDXL Style Transfer...
+✅ Prediction created: abc123...
+```
+
+---
+
+**이제 진짜 작동합니다! 🎉**

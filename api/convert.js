@@ -28,12 +28,15 @@ module.exports = async (req, res) => {
     console.log('Style:', style);
     console.log('Image size:', image.length);
 
-    const fallbackVersion = '8e579174a98cd09caca7e7a99fa2aaf4eaef16daf2003a3862c1af05c1c531c8';
-    let modelVersion = fallbackVersion;
-
+    // Using lucataco/sdxl-style-transfer - verified working model
+    // This properly applies artwork style to user photos
+    let modelVersion = 'latest';
+    
+    console.log('🎨 Using SDXL Style Transfer model');
+    
     try {
-      console.log('Fetching latest model version...');
-      const modelResponse = await fetch('https://api.replicate.com/v1/models/fofr/style-transfer', {
+      console.log('Fetching model version...');
+      const modelResponse = await fetch('https://api.replicate.com/v1/models/lucataco/sdxl-style-transfer', {
         headers: {
           'Authorization': `Token ${apiToken}`,
           'Content-Type': 'application/json'
@@ -44,7 +47,7 @@ module.exports = async (req, res) => {
         const modelData = await modelResponse.json();
         if (modelData.latest_version?.id) {
           modelVersion = modelData.latest_version.id;
-          console.log('✅ Using latest version:', modelVersion);
+          console.log('✅ Using version:', modelVersion);
         }
       }
     } catch (error) {
@@ -163,7 +166,7 @@ module.exports = async (req, res) => {
     const stylePrompt = selectedArtwork.prompt;
     const matchedArtworkName = selectedArtwork.nameKr;
 
-    console.log('Creating prediction...');
+    console.log('Creating prediction with SDXL Style Transfer...');
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
@@ -173,10 +176,13 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         version: modelVersion,
         input: {
-          image: image,
-          style_image: styleImage,
-          prompt: stylePrompt,
-          negative_prompt: 'blurry, low quality, distorted, ugly',
+          input_image: image,           // User's photo (content)
+          style_image: styleImage,       // Van Gogh artwork (style)
+          prompt: stylePrompt,           // Style description
+          negative_prompt: 'blurry, low quality, distorted, ugly, deformed',
+          num_inference_steps: 50,
+          guidance_scale: 7.5,
+          strength: 0.8                  // How much style to apply (0-1)
         }
       })
     });

@@ -28,15 +28,15 @@ module.exports = async (req, res) => {
     console.log('Style:', style);
     console.log('Image size:', image.length);
 
-    // Using ControlNet Canny - preserves exact structure of input image
-    // This extracts edges from input and forces output to follow same structure
+    // Using ControlNet Depth - preserves 3D structure while allowing full color and style
+    // Better than Canny for style transfer as it doesn't just show edges
     let modelVersion = 'latest';
     
-    console.log('🎨 Using ControlNet Canny for structure preservation');
+    console.log('🎨 Using ControlNet Depth for structure + style');
     
     try {
-      console.log('Fetching ControlNet model...');
-      const modelResponse = await fetch('https://api.replicate.com/v1/models/jagilley/controlnet-canny', {
+      console.log('Fetching ControlNet Depth model...');
+      const modelResponse = await fetch('https://api.replicate.com/v1/models/jagilley/controlnet-depth2img', {
         headers: {
           'Authorization': `Token ${apiToken}`,
           'Content-Type': 'application/json'
@@ -166,7 +166,7 @@ module.exports = async (req, res) => {
     const stylePrompt = selectedArtwork.prompt;
     const matchedArtworkName = selectedArtwork.nameKr;
 
-    console.log('Creating prediction with ControlNet Canny...');
+    console.log('Creating prediction with ControlNet Depth...');
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
@@ -176,12 +176,12 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         version: modelVersion,
         input: {
-          image: image,                              // User's photo - structure will be preserved
-          prompt: stylePrompt,                       // Van Gogh style description
-          negative_prompt: 'blurry, low quality, distorted, ugly, deformed',
-          num_inference_steps: 30,
-          guidance_scale: 7.5,
-          controlnet_conditioning_scale: 1.0,        // Maximum structure preservation!
+          image: image,                              
+          prompt: `oil painting, ${stylePrompt}, rich vibrant colors, thick paint texture, artistic masterpiece, detailed brushwork`,
+          negative_prompt: 'sketch, line drawing, black and white, pencil, grayscale, low quality, blurry',
+          num_inference_steps: 50,
+          guidance_scale: 9.0,                       
+          controlnet_conditioning_scale: 0.65,       // Balance between structure and style
           seed: Math.floor(Math.random() * 1000000)
         }
       })

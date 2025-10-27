@@ -1,7 +1,7 @@
 {
   "version": 2,
   "env": {
-    "GITHUB_USER": "YOUR-USERNAME",
-    "GITHUB_REPO": "YOUR-REPO"
+    "GITHUB_USER": "jeongwoo78",
+    "GITHUB_REPO": "picoart-AUTO"
   }
 }
